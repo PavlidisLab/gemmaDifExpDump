@@ -1,4 +1,4 @@
-
+#' @export
 load_dif_exp = function(){
     dh_path = file.path(DATADIR, 'DATA.HOLDER.light.rds')
     fbm_path = file.path(DATADIR,'data_fbm')
