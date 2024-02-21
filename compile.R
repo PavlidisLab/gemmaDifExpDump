@@ -108,14 +108,6 @@ lapply(c('human','mouse','rat'),function(taxon){
                                     }
                                 })
 
-            # count sf.NumSample
-            if (any(c('DE_Include','DE_Exclude') %in% samples$sample.FactorValues[[1]]$name)){
-                samples$sample.FactorValues %>% purrr::map('name') %>% purrr::map_lgl(function(x){
-                    'DE_Include' %in% x
-                }) %>% sum -> sf.NumSample
-            } else{
-                sf.NumSample <- dataset$experiment.SampleCount
-            }
 
             # resultset based sample counts
             resultSet_sampleCount <- seq_len(nrow(differential)) %>% sapply(function(i){
