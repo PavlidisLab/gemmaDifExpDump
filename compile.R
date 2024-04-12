@@ -297,6 +297,9 @@ lapply(c('human','mouse','rat'),function(taxon){
 
     gene_metaData = gene_metaData[match(ncbi_ids,gene_metaData$gene.NCBI),]
     gene_metaData$n.DE = matrixStats::rowSums2(dh$adj.pv[, contrast_metaData$geeq.rawData == 1] <= 0.05, na.rm = T)
+    gene_metaData$n.E = matrixStats::rowSums2(!is.na(dh$adj.pv[, contrast_metaData$geeq.rawData == 1]))
+    gene_metaData$DE.prior = gene_metaData$n.DE/gene_metaData$n.E
+
     gene_metaData$dist.mean =  rowMeans(dh$fc[, contrast_metaData$geeq.rawData == 1], na.rm = T)
     gene_metaData$dist.SD = Rfast::rowVars(dh$fc[,  contrast_metaData$geeq.rawData == 1], na.rm = T, std = T)
 
