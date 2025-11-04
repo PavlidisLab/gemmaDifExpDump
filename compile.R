@@ -9,10 +9,10 @@ library(data.table)
 # options ---------
 
 # paths. defaults are defined in package, can be overwritten
-# DATADIR <- '/cosmos/data/project-data/GemmaDifExp'
-# FREEZEDIR <- '/cosmos/data/project-data/GemmaDifExp/gemma_freeze'
-# RAWDIR <- "/cosmos/data/project-data/GemmaDifExp/raw_data"
-# CACHEDIR <- '/space/scratch/Ogdata/GemmaDifExp/gemma_cache'
+DATADIR <- '/cosmos/data/project-data/GemmaDifExp/10.2025'
+FREEZEDIR <- '/cosmos/data/project-data/GemmaDifExp/10.2025/gemma_freeze'
+RAWDIR <- "/cosmos/data/project-data/GemmaDifExp/10.2025/raw_data"
+CACHEDIR <- '/space/scratch/Ogdata/GemmaDifExp/10.2025/gemma_cache'
 
 # backups are saved in the middle of the process in case
 # we wish to update the data partially
@@ -95,31 +95,35 @@ lapply(c('human','mouse','rat'),function(taxon){
 
             q_types <- gemma.R::get_dataset_quantitation_types(dataset$experiment.ID)
 
-            if(length(differential)==0){
+            if(nrow(differential)==0){
                 return(NULL)
             }
 
             samples <- tryCatch(gemma.R::get_dataset_samples(dataset$experiment.ID),
                                 error = function(e){
-                                    if(e$message == "500: Internal server error."){
+                                    if(grepl("(500)|(404)",e$message)){
+                                        cat(paste0(dataset$experiment.ID,'\n'),append = TRUE,file = 'sample_errors')
                                         return(list())
                                     }else{
                                         stop(e$message)
                                     }
                                 })
 
-
+            if(length(samples)==0){
+                return(NULL)
+            }
             # resultset based sample counts
-            resultSet_sampleCount <- seq_len(nrow(differential)) %>% sapply(function(i){
+
+            resultSet_sampleCount <- seq_len(nrow(differential)) %>% sapply(function(j){
                 resultSet_sampleCount <- gemma.R:::subset_factorValues(samples$sample.factorValues,
                                                                        differential_expressions = differential,
-                                                                       resultSet = differential$result.ID[i]) %>% sum
+                                                                       resultSet = differential$result.ID[j]) %>% sum
             })
 
-            contrast_sampleCount <- seq_len(nrow(differential)) %>% sapply(function(i){
+            contrast_sampleCount <- seq_len(nrow(differential)) %>% sapply(function(j){
                 resultSet_sampleCount <- gemma.R:::subset_factorValues(samples$sample.factorValues,
                                                                        differential_expressions = differential,
-                                                                       resultSet = differential$result.ID[i],
+                                                                       resultSet = differential$result.ID[j],
                                                                        contrast = differential$contrast.ID[i]) %>% sum
             })
 
